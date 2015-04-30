@@ -6,9 +6,18 @@ a,a:hover,a:active{
     text-decoration: none;
     color:inherit;
 }
-ul{
+ul.no-style{
     list-style-type: none;
     padding:0;
+}
+ul.no-style a{
+	display:inline-block;
+	padding:0 5px;
+	transition:background-color 0.3s,color 0.3s;
+}
+ul.no-style a:hover{
+	background-color:#0aa6a0;
+	color:#fefefe;
 }
 header{
     font-family: "微软雅黑","黑体",arial;
