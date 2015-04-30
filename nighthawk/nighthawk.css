@@ -1,0 +1,40 @@
+body{
+    margin:0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+a,a:hover,a:active{
+    text-decoration: none;
+    color:inherit;
+}
+.col{
+    float:left;
+}
+.row{
+
+}
+header{
+    font-family: "微软雅黑","黑体",arial;
+}
+.row:after,.container:after{
+    content:" ";
+    display:block;
+    clear:both;
+    height:0;
+}
+.container{
+
+}
+small{
+    font-size: 85%;
+}
+h1 small,
+h2 small,
+h3 small,
+h4 small,
+h5 small,
+h6 small {
+    font-weight: normal;
+    line-height: 1;
+    color: #999999;
+}
+
