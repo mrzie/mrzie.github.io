@@ -75,12 +75,12 @@ nav.primary a:hover{
     max-width: 700px;
 }
 #side-area{
-    width: 202px;
+    width: 211px;
     font-size: 14px;
     margin-left: 9px;
     line-height: 150%;
 }
-#side_area p,#side_area li
+#side-area p,#side-area li
 {
     padding:0 15px;
     font-size: 12px;
@@ -161,8 +161,9 @@ blockquote {
     padding:20px;
     font-size:15px;
     color:#666;
-    padding:10px;
+    padding:20px;
     transition: background-color 0.3s;
+	cursor:pointer;
 }
 .read-more:hover,.read-more:active
 {
