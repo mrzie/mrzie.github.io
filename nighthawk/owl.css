@@ -1,6 +1,7 @@
 body{
     margin:0;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background-color: #eee;
 }
 a,a:hover,a:active{
     text-decoration: none;
@@ -27,7 +28,16 @@ header{
     font-family: "微软雅黑","黑体",arial;
     overflow: hidden;
 }
-
+footer{
+    max-width: 920px;
+    text-align: center;
+    margin: 30px auto 10px auto;
+    padding: 40px 0;
+    font-size:14px;
+    color:#777;
+    text-shadow: 1px 1px 0px #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
 #container{
     margin:20px auto 0 auto;
 }
@@ -69,7 +79,11 @@ nav.primary a:hover{
     font-size: 14px;
     margin-left: 9px;
     line-height: 150%;
-    padding:10px;
+}
+#side_area p,#side_area li
+{
+    padding:0 15px;
+    font-size: 12px;
 }
 #main-area,#side-area{
     float: left;
