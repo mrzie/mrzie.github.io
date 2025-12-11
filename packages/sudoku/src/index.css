@@ -9,6 +9,9 @@
     --cell-error: #FEE2E2;
     --text-primary: #1F2937;
     --text-secondary: #6B7280;
+    --given-number: #111827;
+    --answer-number: #EA580C;
+    --note-color: #6B7280;
     --button-bg: var(--primary-color);
     --button-hover: var(--primary-dark);
 }

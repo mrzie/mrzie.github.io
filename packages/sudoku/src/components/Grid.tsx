@@ -6,8 +6,8 @@ interface CellProps {
     hasError: boolean;
     isSelected: boolean;
     isRelated: boolean;
-    isInitial: boolean;
-    hasValue: boolean;
+    isGiven: boolean;
+    isMultiInput: boolean;
 }
 
 const GridContainer = styled.div`
@@ -27,17 +27,17 @@ const Cell = styled.div<CellProps>`
         props.hasError
             ? 'var(--cell-error)'
             : props.isSelected
-              ? 'var(--cell-selected)'
-              : props.isRelated
-                ? 'rgba(254, 215, 170, 0.3)'
-                : 'var(--grid-bg)'};
+                ? 'var(--cell-selected)'
+                : props.isRelated
+                    ? 'rgba(254, 215, 170, 0.3)'
+                    : 'var(--grid-bg)'};
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: ${props => (props.hasValue ? '20px' : '10px')};
-    font-weight: ${props => (props.isInitial ? 'bold' : 'normal')};
-    color: ${props => (props.isInitial ? 'var(--text-primary)' : 'var(--primary-color)')};
-    cursor: ${props => (props.isInitial ? 'default' : 'pointer')};
+    font-size: ${props => (props.isMultiInput ? '10px' : '20px')};
+    font-weight: ${props => (props.isGiven ? 'bold' : 600)};
+    color: ${props => (props.isGiven ? 'var(--given-number)' : 'var(--answer-number)')};
+    cursor: ${props => (props.isGiven ? 'default' : 'pointer')};
     touch-action: manipulation;
     user-select: none;
     position: relative;
@@ -61,7 +61,7 @@ const NoteCell = styled.div<NoteCellProps>`
     align-items: center;
     justify-content: center;
     font-size: ${props => props.fontSize};
-    color: var(--text-secondary);
+    color: var(--note-color);
 `;
 
 interface SudokuGridProps {
@@ -88,7 +88,7 @@ export const SudokuGrid: React.FC<SudokuGridProps> = ({
                 const row = Math.floor(idx / 9);
                 const col = idx % 9;
                 const value = gameState.userInput[row][col];
-                const isInitial = gameState.puzzle[row][col] !== null;
+                const isGiven = gameState.puzzle[row][col] !== null;
                 const isSelected = !!(selectedCell && selectedCell[0] === row && selectedCell[1] === col);
                 const isRelated = !!(
                     selectedCell &&
@@ -98,7 +98,10 @@ export const SudokuGrid: React.FC<SudokuGridProps> = ({
                 );
                 const hasError = gameState.errors[row][col];
                 const notes = gameState.notes[row][col];
-
+                const noteCount = notes.size;
+                const isMultiInput = value === null && noteCount > 1;
+                const displayNumber =
+                    value !== null ? value : noteCount === 1 ? Array.from(notes)[0] ?? null : null;
                 return (
                     <Cell
                         key={idx}
@@ -106,16 +109,15 @@ export const SudokuGrid: React.FC<SudokuGridProps> = ({
                         hasError={hasError}
                         isSelected={isSelected}
                         isRelated={isRelated}
-                        isInitial={isInitial}
-                        hasValue={value !== null}
+                        isGiven={isGiven}
+                        isMultiInput={isMultiInput}
                     >
-                        {value ? (
-                            value
-                        ) : notes.size > 0 ? (
+                        {isGiven || !isMultiInput ? (
+                            displayNumber
+                        ) : isMultiInput ? (
                             <NotesGrid>
                                 {Array.from({length: 9}, (_, n) => {
                                     const num = n + 1;
-                                    const noteCount = notes.size;
                                     const fontSize =
                                         noteCount <= 3 ? '12px' : noteCount <= 6 ? '10px' : '8px';
                                     return (
