@@ -111,6 +111,7 @@ export const SudokuGrid: React.FC<SudokuGridProps> = ({
                         isRelated={isRelated}
                         isGiven={isGiven}
                         isMultiInput={isMultiInput}
+                        data-interactive="true"
                     >
                         {isGiven || !isMultiInput ? (
                             displayNumber

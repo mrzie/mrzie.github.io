@@ -56,7 +56,15 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
     onCheck,
 }) => (
     <>
-        {selectedCell && <ClearButton onClick={onClear}>清除</ClearButton>}
-        {isComplete && <CheckButton onClick={onCheck}>检查答案</CheckButton>}
+        {selectedCell && (
+            <ClearButton onClick={onClear} data-interactive="true">
+                清除
+            </ClearButton>
+        )}
+        {isComplete && (
+            <CheckButton onClick={onCheck} data-interactive="true">
+                检查答案
+            </CheckButton>
+        )}
     </>
 );

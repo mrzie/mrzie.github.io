@@ -52,7 +52,12 @@ export const NumberPad: React.FC<NumberPadProps> = ({selectedCell, notes, onNumb
             const num = n + 1;
             const active = selectedCell ? notes[selectedCell[0]][selectedCell[1]].has(num) : false;
             return (
-                <NumberButton key={num} active={active} onClick={() => onNumberClick(num)}>
+                <NumberButton
+                    key={num}
+                    active={active}
+                    onClick={() => onNumberClick(num)}
+                    data-interactive="true"
+                >
                     {num}
                 </NumberButton>
             );
