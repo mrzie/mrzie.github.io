@@ -55,6 +55,6 @@ module.exports = {
                 {from: /./, to: '/sudoku/index.html'},
             ],
         },
-        open: '/sudoku/',
+        // open: '/sudoku/',
     },
 };

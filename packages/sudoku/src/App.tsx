@@ -7,6 +7,8 @@ import {SudokuHeader} from './components/Header';
 import {SudokuGrid} from './components/Grid';
 import {NumberPad} from './components/NumberPad';
 import {ActionButtons} from './components/ActionButtons';
+import {Dialog} from './components/Dialog';
+import {useDialog} from './hooks/useDialog';
 
 const Container = styled.div`
     flex: 1;
@@ -144,7 +146,6 @@ const saveGameToStorage = (state: GameState) => {
     }
 };
 
-
 const App: React.FC = () => {
     const [difficulty, setDifficulty] = useState<DifficultyKey>(() => loadDifficultyFromStorage());
     const [gameState, setGameState] = useState<GameState>(() => {
@@ -152,6 +153,7 @@ const App: React.FC = () => {
         return loaded || generateNewGame(loadDifficultyFromStorage());
     });
     const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
+    const {dialog, showAlert, showConfirm} = useDialog();
 
     useEffect(() => {
         saveGameToStorage(gameState);
@@ -237,11 +239,11 @@ const App: React.FC = () => {
     };
 
     const handleCheck = () => {
+        let hasError = false;
         setGameState((prev: GameState) => {
             const errors: boolean[][] = Array(9)
                 .fill(null)
                 .map(() => Array(9).fill(false));
-            let hasError = false;
 
             for (let i = 0; i < 9; i++) {
                 for (let j = 0; j < 9; j++) {
@@ -252,26 +254,21 @@ const App: React.FC = () => {
                 }
             }
 
-            if (!hasError) {
-                alert('恭喜！数独解答正确！');
-            }
-
             return {...prev, errors};
         });
+
+        if (!hasError) {
+            showAlert('恭喜！数独解答正确！');
+        }
     };
 
     const handleNewGame = () => {
-        if (confirm('要重新开始吗？当前进度会被清除。')) {
-            startNewGame(difficulty);
-        }
+        showConfirm('要重新开始吗？当前进度会被清除。', () => startNewGame(difficulty));
     };
 
     const handleNewGameWithDifficulty = (value: DifficultyKey) => {
         const label = DIFFICULTY_CONFIG[value].label;
-        const confirmed = confirm(`要以 ${label} 难度新开一局吗？当前进度会被清除。`);
-        if (confirmed) {
-            startNewGame(value);
-        }
+        showConfirm(`要以 ${label} 难度新开一局吗？当前进度会被清除。`, () => startNewGame(value));
     };
 
     const isComplete = () => {
@@ -301,11 +298,13 @@ const App: React.FC = () => {
                 onCellClick={handleCellClick}
             />
 
-            <NumberPad
-                selectedCell={selectedCell}
-                notes={gameState.notes}
-                onNumberClick={handleNumberClick}
-            />
+            {selectedCell && (
+                <NumberPad
+                    selectedCell={selectedCell}
+                    notes={gameState.notes}
+                    onNumberClick={handleNumberClick}
+                />
+            )}
 
             <ActionButtons
                 selectedCell={selectedCell}
@@ -315,6 +314,8 @@ const App: React.FC = () => {
             />
 
             <Spacer />
+
+            {dialog && <Dialog {...dialog} />}
         </Container>
     );
 };

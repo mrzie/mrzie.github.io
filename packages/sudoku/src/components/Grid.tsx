@@ -8,12 +8,14 @@ interface CellProps {
     isRelated: boolean;
     isGiven: boolean;
     isMultiInput: boolean;
+    isBoxRight: boolean;
+    isBoxBottom: boolean;
 }
 
 const GridContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(9, 1fr);
-    gap: 2px;
+    gap: 1px;
     background-color: var(--grid-border);
     border: 2px solid var(--grid-border);
     border-radius: 8px;
@@ -29,8 +31,8 @@ const Cell = styled.div<CellProps>`
             : props.isSelected
                 ? 'var(--cell-selected)'
                 : props.isRelated
-                    ? 'rgba(254, 215, 170, 0.3)'
-                    : 'var(--grid-bg)'};
+                    ? '#fff3e0'
+                    : 'white'};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -41,6 +43,12 @@ const Cell = styled.div<CellProps>`
     touch-action: manipulation;
     user-select: none;
     position: relative;
+    box-shadow: ${props => {
+        const shadows: string[] = [];
+        if (props.isBoxRight) shadows.push('inset -2px 0 0 var(--grid-border)');
+        if (props.isBoxBottom) shadows.push('inset 0 -2px 0 var(--grid-border)');
+        return shadows.join(', ') || 'none';
+    }};
 `;
 
 const NotesGrid = styled.div`
@@ -111,6 +119,8 @@ export const SudokuGrid: React.FC<SudokuGridProps> = ({
                         isRelated={isRelated}
                         isGiven={isGiven}
                         isMultiInput={isMultiInput}
+                        isBoxRight={(col + 1) % 3 === 0 && col !== 8}
+                        isBoxBottom={(row + 1) % 3 === 0 && row !== 8}
                         data-interactive="true"
                     >
                         {isGiven || !isMultiInput ? (

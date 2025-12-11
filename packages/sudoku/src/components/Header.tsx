@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {styled} from '@linaria/react';
 import {DifficultyKey} from '../types';
 
@@ -87,6 +87,34 @@ const Dropdown = styled.div`
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     min-width: 160px;
     z-index: 2;
+    animation: dropdownShow 140ms ease forwards;
+    transform-origin: top right;
+
+    @keyframes dropdownShow {
+        from {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes dropdownHide {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.98);
+        }
+    }
+
+    &[data-closing='true'] {
+        animation: dropdownHide 140ms ease forwards;
+    }
 `;
 
 const DropdownItem = styled.button`
@@ -136,6 +164,33 @@ interface SplitNewGameProps {
 
 const SplitNewGame: React.FC<SplitNewGameProps> = ({onNewGame, options, onSelect, current}) => {
     const [open, setOpen] = useState(false);
+    const [closing, setClosing] = useState(false);
+    const hideTimer = useRef<number | null>(null);
+
+    const show = () => {
+        if (hideTimer.current) {
+            clearTimeout(hideTimer.current);
+            hideTimer.current = null;
+        }
+        setClosing(false);
+        setOpen(true);
+    };
+
+    const hide = () => {
+        setClosing(true);
+        hideTimer.current = window.setTimeout(() => {
+            setOpen(false);
+            setClosing(false);
+            hideTimer.current = null;
+        }, 140);
+    };
+
+    useEffect(
+        () => () => {
+            if (hideTimer.current) clearTimeout(hideTimer.current);
+        },
+        []
+    );
 
     return (
         <SplitButton data-interactive="true" tabIndex={-1}>
@@ -143,20 +198,26 @@ const SplitNewGame: React.FC<SplitNewGameProps> = ({onNewGame, options, onSelect
                 新开一局
             </MainButton>
             <ArrowButton
-                onClick={() => setOpen(prev => !prev)}
+                onClick={() => {
+                    if (open) {
+                        hide();
+                    } else {
+                        show();
+                    }
+                }}
                 aria-label="选择难度并新开一局"
                 data-interactive="true"
             >
                 ▼
             </ArrowButton>
-            {open && (
-                <Dropdown>
+            {(open || closing) && (
+                <Dropdown data-closing={closing ? 'true' : undefined}>
                     {options.map(option => (
                         <DropdownItem
                             key={option.value}
                             onClick={() => {
                                 onSelect(option.value);
-                                setOpen(false);
+                                hide();
                             }}
                             data-interactive="true"
                         >
