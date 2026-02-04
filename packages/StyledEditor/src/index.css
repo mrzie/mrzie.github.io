@@ -1,0 +1,24 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+.styled-editor {
+    height: 100%;
+    overflow: auto;
+}
+
+.styled-editor .cm-editor {
+    height: 100%;
+}
+
+.styled-editor .cm-scroller {
+    overflow: auto;
+    font-family: inherit;
+}
