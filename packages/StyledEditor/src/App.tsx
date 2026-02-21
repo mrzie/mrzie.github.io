@@ -1,4 +1,4 @@
-import {useEffect, useRef, forwardRef, useImperativeHandle} from 'react';
+import {useEffect, useRef, useState, forwardRef, useImperativeHandle} from 'react';
 import {EditorState} from '@codemirror/state';
 import {EditorView, drawSelection, keymap} from '@codemirror/view';
 import {history, defaultKeymap, indentWithTab} from '@codemirror/commands';
@@ -6,6 +6,8 @@ import {markdown} from '@codemirror/lang-markdown';
 import {writerTheme, markdownHighlight} from './theme';
 import {headingMarkExtension} from './syntaxMarks';
 import * as commands from './keymaps';
+import {parseMarkdownToSegments, tableToMarkdown} from './preview/parseMarkdown';
+import {Preview} from './preview/Preview';
 
 const STORAGE_KEY = 'styled_editor_content';
 
@@ -18,6 +20,11 @@ Write **Markdown** here.
 - inline \`code\`
 - 苟利国家生死以
 `;
+
+export interface StyledEditorProps {
+    /** 初始模式：true 分栏，false 仅编辑。可通过界面按键切换 */
+    splitView?: boolean;
+}
 
 export interface StyledEditorRef {
     view: EditorView | null;
@@ -41,17 +48,36 @@ export interface StyledEditorRef {
     insertHorizontalRule: () => boolean;
 }
 
-const App = forwardRef<StyledEditorRef, object>((_, ref) => {
+const App = forwardRef<StyledEditorRef, StyledEditorProps>(({splitView: initialSplitView = false}, ref) => {
+    const [splitView, setSplitView] = useState(initialSplitView);
+    const [previewContent, setPreviewContent] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const saveTimerRef = useRef<number | null>(null);
 
-    // 自动保存逻辑（防抖 1秒）
+    const handleTableChange = (raw: string, tableIndex: number, header: string[], rows: string[][]) => {
+        const view = viewRef.current;
+        if (!view) return;
+        const content = view.state.doc.toString();
+        const newTable = tableToMarkdown(header, rows);
+        const parts = content.split(raw);
+        if (parts.length <= tableIndex) return;
+        const newContent =
+            parts.slice(0, tableIndex + 1).join(raw) + newTable + parts.slice(tableIndex + 1).join(raw);
+        if (newContent === content) return;
+        view.dispatch({
+            changes: {from: 0, to: content.length, insert: newContent},
+        });
+        setPreviewContent(newContent);
+        localStorage.setItem(STORAGE_KEY, newContent);
+    };
+
+    // 自动保存 + 预览同步（防抖 1秒）
     const handleDocChange = (content: string) => {
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         saveTimerRef.current = window.setTimeout(() => {
             localStorage.setItem(STORAGE_KEY, content);
-            console.log('Saved to local storage');
+            setPreviewContent(content);
         }, 1000);
     };
 
@@ -115,6 +141,7 @@ const App = forwardRef<StyledEditorRef, object>((_, ref) => {
             parent: container,
         });
         viewRef.current = view;
+        setPreviewContent(savedDoc || initialDoc);
 
         return () => {
             view.destroy();
@@ -123,7 +150,29 @@ const App = forwardRef<StyledEditorRef, object>((_, ref) => {
         };
     }, []);
 
-    return <div ref={containerRef} className="styled-editor" />;
+    return (
+        <div className={`styled-editor ${splitView ? 'styled-editor--split' : ''}`}>
+            <div className="styled-editor__body">
+                <div ref={containerRef} className="styled-editor__editor" />
+                {splitView && (
+                    <div className="styled-editor__preview">
+                        <Preview
+                            segments={parseMarkdownToSegments(previewContent)}
+                            onTableChange={handleTableChange}
+                        />
+                    </div>
+                )}
+            </div>
+            <button
+                type="button"
+                className="styled-editor__toggle"
+                onClick={() => setSplitView((v) => !v)}
+                title={splitView ? '切换为仅编辑' : '切换为分栏预览'}
+            >
+                {splitView ? '编辑' : '分栏'}
+            </button>
+        </div>
+    );
 });
 
 App.displayName = 'StyledEditor';

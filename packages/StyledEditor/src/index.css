@@ -11,7 +11,282 @@ body,
 
 .styled-editor {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.styled-editor__body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.styled-editor:not(.styled-editor--split) .styled-editor__body {
+    flex-direction: column;
+}
+
+.styled-editor:not(.styled-editor--split) .styled-editor__editor {
+    flex: 1;
     overflow: auto;
+}
+
+.styled-editor--split .styled-editor__body {
+    flex-direction: row;
+}
+
+.styled-editor--split .styled-editor__editor {
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+}
+
+.styled-editor--split .styled-editor__preview {
+    flex: 1;
+    min-width: 0;
+    border-left: 1px solid #e0e0e0;
+    overflow: auto;
+}
+
+/* Preview 分段渲染 */
+.preview {
+    padding: 12px;
+}
+
+.preview__segment {
+    margin-bottom: 1em;
+}
+
+.preview__segment:last-child {
+    margin-bottom: 0;
+}
+
+.preview__segment h1,
+.preview__segment h2,
+.preview__segment h3 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.preview__segment p {
+    margin: 0.5em 0;
+}
+
+/* 表格预览组件 */
+.preview-table {
+    margin: 1em 0;
+}
+
+.preview-table__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.preview-table__table th,
+.preview-table__table td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    position: relative;
+    overflow: visible;
+}
+
+/* hover 时提升 z-index，使边线区域显示在相邻格上方 */
+.preview-table__table th:hover,
+.preview-table__table td:hover {
+    z-index: 5;
+}
+
+
+.preview-table__table th {
+    background: #f5f5f5;
+}
+
+.preview-table__cell {
+    display: block;
+    min-width: 40px;
+    min-height: 1.5em;
+    line-height: 1.5;
+}
+
+.preview-table__table th,
+.preview-table__table td {
+    min-height: 2.5em;
+}
+
+/* 边线悬停区域：居中定位在两格之间的 1px 边线上 */
+.preview-table__edge {
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+}
+
+/* hover 时在边线位置显示蓝色高亮 */
+.preview-table__edge--right:hover {
+    background: linear-gradient(to right, transparent 4px, #4a90d9 4px, #4a90d9 6px, transparent 6px);
+}
+
+.preview-table__edge--bottom:hover {
+    background: linear-gradient(to bottom, transparent 4px, #4a90d9 4px, #4a90d9 6px, transparent 6px);
+}
+
+.preview-table__edge-btns {
+    position: absolute;
+    display: flex;
+    gap: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    z-index: 11;
+}
+
+.preview-table__edge:hover .preview-table__edge-btns {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 右边线：区域宽 10px，居中在右边线 */
+.preview-table__edge--right {
+    right: -5px;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+}
+
+.preview-table__edge--right .preview-table__edge-btns {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+}
+
+/* 左边线：仅首列，宽 10px，居中在左边线 */
+.preview-table__edge--left {
+    left: -5px;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+}
+
+.preview-table__edge--left:hover {
+    background: linear-gradient(to right, transparent 4px, #4a90d9 4px, #4a90d9 6px, transparent 6px);
+}
+
+.preview-table__edge--left .preview-table__edge-btns {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-direction: column;
+}
+
+/* 底边线：区域高 10px，居中在底边线 */
+.preview-table__edge--bottom {
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 10px;
+}
+
+.preview-table__edge--bottom .preview-table__edge-btns {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+.preview-table__edge-btn {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.preview-table__edge-btn:hover:not(:disabled) {
+    color: #333;
+    background: #f0f0f0;
+}
+
+.preview-table__edge-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.preview-table__dropdown {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    min-width: 80px;
+}
+
+/* 竖线菜单（右边线）：弹到右侧 */
+.preview-table__dropdown--right {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 4px;
+}
+
+/* 竖线菜单（左边线）：弹到左侧 */
+.preview-table__dropdown--left {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-right: 4px;
+}
+
+/* 横线（底边线）菜单：弹到底边线下方，水平居中 */
+.preview-table__dropdown--bottom {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+}
+
+.preview-table__dropdown button {
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    font-size: 12px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.preview-table__dropdown button:hover:not(:disabled) {
+    background: #f5f5f5;
+}
+
+.preview-table__dropdown button:disabled {
+    color: #999;
+    cursor: not-allowed;
+}
+
+.styled-editor__toggle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.styled-editor__toggle:hover {
+    background: #f5f5f5;
 }
 
 .styled-editor .cm-editor {
