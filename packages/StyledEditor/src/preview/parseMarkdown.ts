@@ -1,6 +1,10 @@
-import {marked, type Tokens} from 'marked';
+import unified from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import mdastToString from 'mdast-util-to-string';
+import type {Root, Table} from 'mdast';
 
-marked.use({gfm: true});
+const parser = unified().use(remarkParse).use(remarkGfm);
 
 /** 分段类型 */
 export type SegmentType = 'table' | 'other';
@@ -14,10 +18,10 @@ export interface TableSegment {
     rows: string[][];
 }
 
-/** 其他分段，保留原始 HTML */
+/** 其他分段，保留原始 markdown */
 export interface OtherSegment {
     type: 'other';
-    html: string;
+    markdown: string;
 }
 
 export type Segment = TableSegment | OtherSegment;
@@ -35,37 +39,43 @@ export function tableToMarkdown(header: string[], rows: string[][]): string {
 
 /** 将 markdown 解析为分段数组，表格单独拆出 */
 export function parseMarkdownToSegments(markdown: string): Segment[] {
-    const tokens = marked.lexer(markdown);
+    const root = parser.parse(markdown) as Root;
     const segments: Segment[] = [];
-    const otherTokens: Tokens.Generic[] = [];
+    let otherStart: number | null = null;
 
-    const flushOther = () => {
-        if (otherTokens.length > 0) {
-            const html = marked.parser(otherTokens);
-            if (html.trim()) {
-                segments.push({type: 'other', html});
+    const flushOther = (end: number) => {
+        if (otherStart !== null) {
+            const text = markdown.slice(otherStart, end);
+            if (text.trim()) {
+                segments.push({type: 'other', markdown: text});
             }
-            otherTokens.length = 0;
+            otherStart = null;
         }
     };
 
-    for (const token of tokens) {
-        if (typeof token !== 'object' || !('type' in token)) continue;
+    for (const node of root.children) {
+        if (node.type === 'table') {
+            const pos = node.position!;
+            flushOther(pos.start.offset!);
 
-        if (token.type === 'table') {
-            flushOther();
-            const t = token as Tokens.Table;
-            const header = (t.header || []).map((c) => c.text ?? '');
-            const align = (t.align || []).map((a) =>
+            const t = node as Table;
+            const header = (t.children[0]?.children ?? []).map((cell) => mdastToString(cell));
+            const align = (t.align ?? []).map((a) =>
                 a === 'left' ? 'left' : a === 'center' ? 'center' : a === 'right' ? 'right' : null,
             );
-            const rows = (t.rows || []).map((row) => row.map((c) => c.text ?? ''));
-            segments.push({type: 'table', raw: t.raw, header, align, rows});
+            const rows = t.children.slice(1).map((row) => row.children.map((cell) => mdastToString(cell)));
+            const raw = markdown.slice(pos.start.offset!, pos.end.offset!);
+            segments.push({type: 'table', raw, header, align, rows});
+
+            otherStart = pos.end.offset!;
         } else {
-            otherTokens.push(token as Tokens.Generic);
+            if (otherStart === null) {
+                otherStart = node.position!.start.offset!;
+            }
         }
     }
-    flushOther();
+
+    flushOther(markdown.length);
 
     return segments;
 }

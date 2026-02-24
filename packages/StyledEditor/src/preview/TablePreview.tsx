@@ -75,9 +75,8 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
             menu.isHeader === isHeader;
 
         if (edge === 'right' || edge === 'left') {
-            // 竖线：列操作
-            const canDelete = colCount > 1;
-            // left 边 + 在此列左侧插入，right 边 + 在此列右侧插入
+            // 竖线：添加列 + 删除行
+            const canDeleteRow = !isHeader && rows.length > 1;
             const onAdd = edge === 'left'
                 ? () => addColumnAfter(colIdx - 1)
                 : () => addColumnAfter(colIdx);
@@ -95,9 +94,9 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
                         <button
                             type="button"
                             className="preview-table__edge-btn"
-                            disabled={!canDelete}
+                            disabled={!canDeleteRow}
                             onClick={() => setMenu({edge, rowIdx, colIdx, isHeader})}
-                            title="列操作"
+                            title="行操作"
                         >
                             ⋯
                         </button>
@@ -109,10 +108,10 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
                         >
                             <button
                                 type="button"
-                                disabled={colCount <= 1}
-                                onClick={() => deleteColumn(colIdx)}
+                                disabled={isHeader || rows.length <= 1}
+                                onClick={() => deleteRow(bodyRowIdx)}
                             >
-                                删除列
+                                删除行
                             </button>
                         </div>
                     )}
@@ -120,8 +119,8 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
             );
         }
 
-        // 横线（bottom）：行操作
-        const canDelete = !isHeader && rows.length > 1;
+        // 横线（bottom）：添加行 + 删除列
+        const canDeleteCol = colCount > 1;
         return (
             <div className="preview-table__edge preview-table__edge--bottom">
                 <div className="preview-table__edge-btns">
@@ -133,17 +132,15 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
                     >
                         +
                     </button>
-                    {!isHeader && (
-                        <button
-                            type="button"
-                            className="preview-table__edge-btn"
-                            disabled={!canDelete}
-                            onClick={() => setMenu({edge: 'bottom', rowIdx, colIdx, isHeader})}
-                            title="行操作"
-                        >
-                            ⋯
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        className="preview-table__edge-btn"
+                        disabled={!canDeleteCol}
+                        onClick={() => setMenu({edge: 'bottom', rowIdx, colIdx, isHeader})}
+                        title="列操作"
+                    >
+                        ⋯
+                    </button>
                 </div>
                 {showMenu && (
                     <div
@@ -152,10 +149,10 @@ export function TablePreview({segment, onChange}: TablePreviewProps) {
                     >
                         <button
                             type="button"
-                            disabled={rows.length <= 1}
-                            onClick={() => deleteRow(bodyRowIdx)}
+                            disabled={colCount <= 1}
+                            onClick={() => deleteColumn(colIdx)}
                         >
-                            删除行
+                            删除列
                         </button>
                     </div>
                 )}

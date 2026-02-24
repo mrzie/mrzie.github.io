@@ -9,7 +9,7 @@ export const writerTheme = EditorView.theme({
         lineHeight: '1.7',
     },
     '.cm-content': {
-        fontFamily: 'Georgia, "Noto Serif SC", serif',
+        fontFamily: '"Noto Sans SC", "Source Sans 3", system-ui, sans-serif',
         padding: '1em 0',
     },
     '.cm-line': {
@@ -33,18 +33,18 @@ export const writerTheme = EditorView.theme({
 
 /** Markdown 语义高亮：标题、粗体、斜体、链接 */
 export const markdownHighlightStyle = HighlightStyle.define([
-    {tag: tags.heading1, fontSize: '2em', fontWeight: 'bold', fontFamily: 'system-ui, sans-serif'},
+    {tag: tags.heading1, fontSize: '2em', fontWeight: 'bold', fontFamily: '"Noto Sans SC", "Source Sans 3", system-ui, sans-serif'},
     {
         tag: tags.heading2,
         fontSize: '1.6em',
         fontWeight: 'bold',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: '"Noto Sans SC", "Source Sans 3", system-ui, sans-serif',
     },
     {
         tag: tags.heading3,
         fontSize: '1.3em',
         fontWeight: 'bold',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: '"Noto Sans SC", "Source Sans 3", system-ui, sans-serif',
     },
     {tag: tags.strong, fontWeight: 'bold'},
     {tag: tags.emphasis, fontStyle: 'italic'},

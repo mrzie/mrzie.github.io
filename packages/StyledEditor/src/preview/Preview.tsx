@@ -1,5 +1,14 @@
+import {memo} from 'react';
+import {useRemarkSync} from 'react-remark';
+import remarkGfm from 'remark-gfm';
 import type {Segment} from './parseMarkdown';
 import {TablePreview} from './TablePreview';
+
+const REMARK_PLUGINS = [remarkGfm];
+
+const MarkdownSegment = memo(function MarkdownSegment({markdown}: {markdown: string}) {
+    return <div className="preview__segment">{useRemarkSync(markdown, {remarkPlugins: REMARK_PLUGINS})}</div>;
+});
 
 interface PreviewProps {
     segments: Segment[];
@@ -23,7 +32,7 @@ export function Preview({segments, onTableChange}: PreviewProps) {
                         }
                     />
                 ) : (
-                    <div key={i} className="preview__segment" dangerouslySetInnerHTML={{__html: seg.html}} />
+                    <MarkdownSegment key={i} markdown={seg.markdown} />
                 ),
             )}
         </div>

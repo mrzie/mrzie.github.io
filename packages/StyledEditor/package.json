@@ -25,15 +25,20 @@
     "@codemirror/state": "^6.4.0",
     "@codemirror/view": "^6.23.0",
     "@lezer/highlight": "^1.2.0",
-    "marked": "^17.0.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "mdast-util-to-string": "^2.0.0",
+    "react-remark": "^2.1.0",
+    "remark-gfm": "^1.0.0",
+    "remark-parse": "^9.0.0",
+    "unified": "^9.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.23.0",
     "@babel/preset-env": "^7.22.20",
     "@babel/preset-react": "^7.22.15",
     "@babel/preset-typescript": "^7.23.0",
+    "@types/mdast": "^3.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
